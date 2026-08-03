@@ -553,41 +553,55 @@ function blankForm(os){
   };
 }
 
-/* ---------------- storage helpers ---------------- */
-async function getIndex(){
+/* ---------------- storage helpers ----------------
+   Usa localStorage do navegador (funciona em qualquer hospedagem, ex: GitHub Pages).
+   Os dados ficam salvos apenas neste aparelho/navegador — não são compartilhados
+   automaticamente entre pessoas diferentes.
+------------------------------------------------------ */
+const LS_PREFIX = 'checklistVeiculo_';
+
+function lsGet(key){
   try{
-    const r = await window.storage.get('checklist-index', true);
-    return r ? JSON.parse(r.value) : [];
-  }catch(e){ return []; }
+    const raw = window.localStorage.getItem(LS_PREFIX + key);
+    return raw === null ? null : raw;
+  }catch(e){ console.error('localStorage indisponível', e); return null; }
+}
+function lsSet(key, value){
+  try{
+    window.localStorage.setItem(LS_PREFIX + key, value);
+    return true;
+  }catch(e){ console.error('Falha ao salvar no localStorage', e); return false; }
+}
+function lsDelete(key){
+  try{ window.localStorage.removeItem(LS_PREFIX + key); }catch(e){ console.error(e); }
+}
+
+async function getIndex(){
+  const raw = lsGet('checklist-index');
+  try{ return raw ? JSON.parse(raw) : []; }catch(e){ return []; }
 }
 async function setIndex(idx){
-  try{ await window.storage.set('checklist-index', JSON.stringify(idx), true); }
-  catch(e){ console.error('index save failed', e); }
+  const ok = lsSet('checklist-index', JSON.stringify(idx));
+  if(!ok) console.error('index save failed');
 }
 async function getNextOS(){
   let n = 0;
-  try{
-    const r = await window.storage.get('os-counter', true);
-    n = r ? parseInt(r.value, 10) : 0;
-  }catch(e){ n = 0; }
+  const raw = lsGet('os-counter');
+  n = raw ? parseInt(raw, 10) : 0;
+  if(isNaN(n)) n = 0;
   n += 1;
-  try{ await window.storage.set('os-counter', String(n), true); }catch(e){}
+  lsSet('os-counter', String(n));
   return 'OS-' + String(n).padStart(6, '0');
 }
 async function saveRecord(record){
-  try{
-    await window.storage.set('checklist:' + record.os, JSON.stringify(record), true);
-    return true;
-  }catch(e){ console.error(e); return false; }
+  return lsSet('checklist:' + record.os, JSON.stringify(record));
 }
 async function loadRecord(os){
-  try{
-    const r = await window.storage.get('checklist:' + os, true);
-    return r ? JSON.parse(r.value) : null;
-  }catch(e){ return null; }
+  const raw = lsGet('checklist:' + os);
+  try{ return raw ? JSON.parse(raw) : null; }catch(e){ return null; }
 }
 async function deleteRecord(os){
-  try{ await window.storage.delete('checklist:' + os, true); }catch(e){}
+  lsDelete('checklist:' + os);
 }
 
 /* ---------------- toast ---------------- */
