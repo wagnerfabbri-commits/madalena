@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Check List de Veículo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F3F1EA;
+    --paper-2:#EAE6DA;
+    --ink:#20242A;
+    --ink-soft:#565C64;
+    --steel:#33495C;
+    --steel-2:#4A6478;
+    --orange:#DD5B2E;
+    --orange-dark:#B8451F;
+    --green:#3E7A56;
+    --line:#C9C3B4;
+    --card:#FFFFFF;
+    --radius:10px;
+    --shadow: 0 1px 2px rgba(32,36,42,.06), 0 4px 14px rgba(32,36,42,.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    padding-bottom:40px;
+  }
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  .display{font-family:'Oswald', sans-serif; text-transform:uppercase; letter-spacing:.04em;}
+
+  /* ---------- Top bar ---------- */
+  header.appbar{
+    position:sticky; top:0; z-index:50;
+    background:var(--steel);
+    color:#fff;
+    padding:14px 16px;
+    display:flex; align-items:center; justify-content:space-between;
+    box-shadow:var(--shadow);
+  }
+  header.appbar .brand{
+    display:flex; flex-direction:column; line-height:1.1;
+  }
+  header.appbar .brand .k1{font-size:11px; letter-spacing:.14em; opacity:.7; font-weight:500;}
+  header.appbar .brand .k2{font-family:'Oswald',sans-serif; font-size:20px; font-weight:600; letter-spacing:.03em; text-transform:uppercase;}
+  header.appbar button.icon-btn{
+    background:rgba(255,255,255,.12); border:none; color:#fff; border-radius:8px;
+    padding:8px 10px; font-size:13px; font-weight:600; font-family:inherit; cursor:pointer;
+  }
+
+  main{max-width:560px; margin:0 auto; padding:16px;}
+
+  /* ---------- tabs ---------- */
+  .tabs{display:flex; gap:8px; margin-bottom:16px;}
+  .tabs button{
+    flex:1; padding:10px 8px; border-radius:8px; border:1px solid var(--line);
+    background:var(--card); color:var(--ink-soft); font-weight:600; font-size:13px;
+    font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:.03em;
+    cursor:pointer;
+  }
+  .tabs button.active{background:var(--steel); border-color:var(--steel); color:#fff;}
+
+  /* ---------- cards / sections ---------- */
+  .card{
+    background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
+    padding:16px; margin-bottom:14px; border:1px solid rgba(0,0,0,.04);
+  }
+  .section-title{
+    font-family:'Oswald',sans-serif; text-transform:uppercase; font-size:13px;
+    letter-spacing:.08em; color:var(--steel); font-weight:600;
+    margin:0 0 12px 0; display:flex; align-items:center; gap:8px;
+  }
+  .section-title .num{
+    background:var(--paper-2); color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;
+    font-size:11px; border-radius:5px; padding:2px 6px;
+  }
+
+  label{display:block; font-size:12px; color:var(--ink-soft); font-weight:600; margin:0 0 4px 2px;}
+  input[type=text], input[type=date], input[type=time], input[type=number], textarea, select{
+    width:100%; padding:10px 11px; border-radius:8px; border:1.5px solid var(--line);
+    background:#FCFBF8; font-family:inherit; font-size:14.5px; color:var(--ink);
+    margin-bottom:12px;
+  }
+  textarea{resize:vertical; min-height:64px;}
+  input:focus, textarea:focus, select:focus{outline:2px solid var(--steel-2); outline-offset:1px; border-color:var(--steel-2);}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;}
+
+  /* ---------- OS ticket ---------- */
+  .ticket{
+    background:var(--ink); color:var(--paper); border-radius:var(--radius);
+    padding:16px 18px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between;
+    box-shadow:var(--shadow);
+  }
+  .ticket .k1{font-size:11px; letter-spacing:.14em; opacity:.65; text-transform:uppercase;}
+  .ticket .os-num{font-family:'IBM Plex Mono',monospace; font-size:26px; font-weight:600; letter-spacing:.02em;}
+  .ticket .status-pill{
+    font-size:11px; font-weight:700; padding:5px 10px; border-radius:20px;
+    text-transform:uppercase; letter-spacing:.04em;
+  }
+  .status-ok{background:rgba(62,122,86,.22); color:#8FD6AB;}
+  .status-issue{background:rgba(221,91,46,.25); color:#FFB18F;}
+  .status-draft{background:rgba(255,255,255,.14); color:#cfcac0;}
+
+  /* ---------- checklist items ---------- */
+  .check-item{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:10px 0; border-bottom:1px solid var(--paper-2);
+  }
+  .check-item:last-child{border-bottom:none;}
+  .check-item .item-label{font-size:13.5px; font-weight:600; flex:1;}
+  .seg{display:flex; border-radius:8px; overflow:hidden; border:1.5px solid var(--line);}
+  .seg button{
+    border:none; background:#FCFBF8; padding:7px 14px; font-size:12px; font-weight:700;
+    font-family:'Oswald',sans-serif; letter-spacing:.03em; color:var(--ink-soft); cursor:pointer;
+  }
+  .seg button.sim.on{background:var(--green); color:#fff;}
+  .seg button.nao.on{background:var(--orange); color:#fff;}
+  .seg button + button{border-left:1.5px solid var(--line);}
+
+  /* ---------- car diagrams ---------- */
+  .diagram-tabs{display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap;}
+  .diagram-tabs button{
+    padding:6px 10px; border-radius:7px; border:1.5px solid var(--line); background:#FCFBF8;
+    font-size:11.5px; font-weight:600; font-family:'Oswald',sans-serif; text-transform:uppercase;
+    letter-spacing:.03em; color:var(--ink-soft); cursor:pointer;
+  }
+  .diagram-tabs button.active{background:var(--orange); border-color:var(--orange); color:#fff;}
+  .diagram-wrap{
+    position:relative; border:1.5px dashed var(--line); border-radius:8px; background:#FCFBF8;
+    touch-action:none; overflow:hidden;
+  }
+  .diagram-wrap svg{display:block; width:100%; height:auto;}
+  .marker{
+    position:absolute; width:22px; height:22px; margin-left:-11px; margin-top:-11px;
+    border-radius:50%; background:var(--orange); border:2px solid #fff; color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+    box-shadow:0 1px 4px rgba(0,0,0,.35); cursor:pointer;
+  }
+  .diagram-hint{font-size:11.5px; color:var(--ink-soft); margin-top:8px;}
+  .marker-list{margin-top:10px; display:flex; flex-direction:column; gap:6px;}
+  .marker-list .mrow{
+    display:flex; gap:8px; align-items:flex-start; background:var(--paper-2); border-radius:7px; padding:8px 10px;
+  }
+  .marker-list .mrow .tag{
+    background:var(--orange); color:#fff; border-radius:50%; width:18px; height:18px; min-width:18px;
+    display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; margin-top:1px;
+  }
+  .marker-list .mrow input{margin:0; padding:6px 8px; font-size:12.5px;}
+  .marker-list .mrow button.del{
+    background:none; border:none; color:var(--ink-soft); font-size:16px; cursor:pointer; padding:0 4px;
+  }
+
+  /* ---------- signature ---------- */
+  .sig-box{border:1.5px solid var(--line); border-radius:8px; background:#fff; touch-action:none;}
+  .sig-actions{display:flex; justify-content:space-between; align-items:center; margin-top:6px; margin-bottom:12px;}
+  .sig-actions button{
+    background:none; border:none; color:var(--steel); font-weight:600; font-size:12.5px; cursor:pointer;
+  }
+
+  /* ---------- buttons ---------- */
+  .btn{
+    display:block; width:100%; text-align:center; padding:13px; border-radius:9px; border:none;
+    font-family:'Oswald',sans-serif; text-transform:uppercase; letter-spacing:.03em; font-weight:600;
+    font-size:14px; cursor:pointer;
+  }
+  .btn-primary{background:var(--orange); color:#fff;}
+  .btn-primary:active{background:var(--orange-dark);}
+  .btn-secondary{background:var(--card); color:var(--steel); border:1.5px solid var(--steel);}
+  .btn-ghost{background:none; color:var(--ink-soft); font-weight:500; text-transform:none; font-family:'IBM Plex Sans',sans-serif; font-size:13px;}
+
+  /* ---------- history list ---------- */
+  .hist-item{
+    background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:14px 16px;
+    margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;
+    border:1px solid rgba(0,0,0,.04);
+  }
+  .hist-item .left .os{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:15px;}
+  .hist-item .left .meta{font-size:12px; color:var(--ink-soft); margin-top:3px;}
+  .hist-item .right{display:flex; flex-direction:column; align-items:flex-end; gap:6px;}
+  .empty-state{text-align:center; padding:50px 20px; color:var(--ink-soft);}
+  .empty-state .big{font-size:40px; margin-bottom:10px;}
+  .search-bar{margin-bottom:14px;}
+  .search-bar input{margin-bottom:0;}
+
+  .view-field{display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px dashed var(--paper-2); font-size:13.5px;}
+  .view-field .k{color:var(--ink-soft); font-weight:600;}
+  .view-field .v{font-weight:500; text-align:right;}
+
+  .toast{
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+    background:var(--ink); color:#fff; padding:11px 18px; border-radius:8px; font-size:13.5px;
+    box-shadow:var(--shadow); z-index:200; opacity:0; pointer-events:none; transition:opacity .25s, transform .25s;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(-6px);}
+
+  .hidden{display:none !important;}
+  .loading{text-align:center; padding:40px; color:var(--ink-soft); font-size:13px;}
+
+  /* ---------- print button on history rows ---------- */
+  .hist-item .print-btn{
+    background:var(--steel); color:#fff; border:none; border-radius:7px;
+    padding:6px 10px; font-size:11px; font-weight:700; font-family:'Oswald',sans-serif;
+    text-transform:uppercase; letter-spacing:.03em; cursor:pointer;
+  }
+
+  /* ============================================================
+     PRINT LAYOUT — replica o formulário em papel original
+     ============================================================ */
+  #print-area{ display:none; }
+  @media print{
+    body *{ visibility:hidden; }
+    #print-area, #print-area *{ visibility:visible; }
+    #print-area{
+      display:block !important;
+      position:absolute; top:0; left:0; width:100%;
+      background:#fff; color:#111; padding:0;
+    }
+    @page{ margin:12mm; }
+  }
+  .pp-page{
+    font-family:Arial, Helvetica, sans-serif; color:#111; font-size:12px; line-height:1.35;
+    width:100%; max-width:190mm; margin:0 auto;
+  }
+  .pp-title{ text-align:center; font-size:18px; font-weight:700; letter-spacing:.05em; margin:0 0 4px; }
+  .pp-os{ text-align:right; font-size:11px; font-weight:700; margin-bottom:10px; }
+  .pp-row{ display:flex; gap:18px; margin-bottom:6px; flex-wrap:wrap; }
+  .pp-field{ display:flex; align-items:flex-end; gap:4px; white-space:nowrap; }
+  .pp-field .lab{ font-weight:700; }
+  .pp-field .val{ border-bottom:1px solid #111; min-width:90px; padding:0 4px 1px; font-weight:400; }
+  .pp-field.grow .val{ flex:1; min-width:160px; }
+
+  .pp-diagrams{ display:grid; grid-template-columns:1fr 1.6fr; gap:10px; margin:14px 0; }
+  .pp-diagrams .left-col{ display:flex; flex-direction:column; gap:10px; }
+  .pp-diagram-box{ border:1px solid #999; border-radius:4px; position:relative; background:#fff; }
+  .pp-diagram-box svg{ display:block; width:100%; height:auto; }
+  .pp-diagram-label{ position:absolute; top:2px; left:5px; font-size:9px; font-weight:700; color:#666; text-transform:uppercase; }
+  .pp-marker{
+    position:absolute; width:14px; height:14px; margin-left:-7px; margin-top:-7px; border-radius:50%;
+    border:1.3px solid #111; background:#fff; color:#111; font-size:8px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .pp-right-col{ display:flex; flex-direction:column; gap:10px; }
+
+  .pp-motivo-label{ font-weight:700; margin:10px 0 4px; }
+  .pp-lines{ }
+  .pp-lines .ln{ border-bottom:1px solid #111; height:16px; margin-bottom:2px; font-size:11.5px; padding-left:2px; }
+
+  .pp-checklist{ margin-top:12px; }
+  .pp-check-row{ display:flex; align-items:center; gap:10px; padding:3px 0; font-size:12px; }
+  .pp-check-row .arrow{ width:12px; }
+  .pp-check-row .lbl{ flex:1; }
+  .pp-check-row .opt{ display:flex; align-items:center; gap:5px; width:70px; }
+  .pp-box{ width:12px; height:12px; border:1.2px solid #111; display:inline-flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; }
+
+  .pp-obs-label{ font-weight:700; margin:12px 0 4px; }
+  .pp-sig{ margin-top:22px; }
+  .pp-sig-row{ display:flex; align-items:flex-end; gap:6px; margin-bottom:16px; }
+  .pp-sig-row .lab{ font-weight:700; white-space:nowrap; }
+  .pp-sig-row .line{ flex:1; border-bottom:1px solid #111; height:34px; display:flex; align-items:flex-end; overflow:hidden; }
+  .pp-sig-row .line img{ max-height:32px; }
+</style>
+</head>
+<body>
+
+<header class="appbar">
+  <div class="brand">
+    <span class="k1">Frota &middot; Controle de Saída</span>
+    <span class="k2">Check List</span>
+  </div>
+  <button class="icon-btn" onclick="goHistory()">Histórico</button>
+</header>
+
+<main>
+
+  <!-- ============ HOME / HISTORY ============ -->
+  <section id="screen-home">
+    <div class="tabs">
+      <button id="tab-home-new" class="active" onclick="switchHomeTab('new')">Novo Checklist</button>
+      <button id="tab-home-hist" onclick="switchHomeTab('hist')">Histórico</button>
+    </div>
+
+    <div id="home-new-panel">
+      <div class="card" style="text-align:center;">
+        <p class="section-title" style="justify-content:center;">Iniciar uma nova vistoria</p>
+        <p style="color:var(--ink-soft); font-size:13.5px; margin:0 0 16px;">
+          Um número de OS será gerado automaticamente ao iniciar.
+        </p>
+        <button class="btn btn-primary" onclick="startNewChecklist()">+ Novo Check List</button>
+      </div>
+    </div>
+
+    <div id="home-hist-panel" class="hidden">
+      <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Buscar por OS, placa, condutor..." oninput="renderHistory()">
+      </div>
+      <div id="history-list"></div>
+    </div>
+  </section>
+
+  <!-- ============ FORM ============ -->
+  <section id="screen-form" class="hidden">
+
+    <div class="ticket">
+      <div>
+        <div class="k1">Ordem de Serviço</div>
+        <div class="os-num" id="ticket-os">OS-000000</div>
+      </div>
+      <div class="status-pill status-draft" id="ticket-status">Em preenchimento</div>
+    </div>
+
+    <div class="card">
+      <p class="section-title"><span class="num">01</span> Identificação</p>
+      <label>Nome do Condutor</label>
+      <input type="text" id="f-condutor" placeholder="Nome completo">
+      <label>Setor</label>
+      <input type="text" id="f-setor" placeholder="Setor / Departamento">
+      <div class="row2">
+        <div><label>Data</label><input type="date" id="f-data"></div>
+        <div><label>Placa</label><input type="text" id="f-placa" placeholder="ABC-1D23" style="text-transform:uppercase;"></div>
+      </div>
+      <label>Modelo do Veículo</label>
+      <input type="text" id="f-modelo" placeholder="Ex: Volkswagen Virtus">
+    </div>
+
+    <div class="card">
+      <p class="section-title"><span class="num">02</span> Saída &amp; Chegada</p>
+      <div class="row2">
+        <div><label>Hora Saída</label><input type="time" id="f-hora-saida"></div>
+        <div><label>Horário Chegada</label><input type="time" id="f-horario-chegada"></div>
+      </div>
+      <label>Data de Chegada</label>
+      <input type="date" id="f-data-chegada">
+      <div class="row2">
+        <div><label>KM Inicial</label><input type="number" inputmode="numeric" id="f-km-inicial" placeholder="0"></div>
+        <div><label>KM Final</label><input type="number" inputmode="numeric" id="f-km-final" placeholder="0"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="section-title"><span class="num">03</span> Motivo da Viagem</p>
+      <textarea id="f-motivo" placeholder="Descreva o motivo da viagem..." style="min-height:100px;"></textarea>
+    </div>
+
+    <div class="card">
+      <p class="section-title"><span class="num">04</span> Avarias no Veículo</p>
+      <div class="diagram-tabs" id="diagram-tabs"></div>
+      <div class="diagram-wrap" id="diagram-wrap"></div>
+      <p class="diagram-hint">Toque no desenho para marcar o local de uma avaria.</p>
+      <div class="marker-list" id="marker-list"></div>
+    </div>
+
+    <div class="card">
+      <p class="section-title"><span class="num">05</span> Itens de Verificação</p>
+      <div id="checklist-items"></div>
+    </div>
+
+    <div class="card">
+      <p class="section-title"><span class="num">06</span> Observações das Avarias</p>
+      <textarea id="f-observacoes" placeholder="Detalhe qualquer avaria observada..."></textarea>
+    </div>
+
+    <div class="card">
+      <p class="section-title"><span class="num">07</span> Assinatura do Condutor</p>
+      <canvas id="sig-condutor" class="sig-box" height="140"></canvas>
+      <div class="sig-actions">
+        <button onclick="clearSig('condutor')">Limpar assinatura</button>
+        <span style="font-size:11.5px; color:var(--ink-soft);">Assine com o dedo</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="section-title"><span class="num">08</span> Assinatura do Responsável</p>
+      <canvas id="sig-responsavel" class="sig-box" height="140"></canvas>
+      <div class="sig-actions">
+        <button onclick="clearSig('responsavel')">Limpar assinatura</button>
+        <span style="font-size:11.5px; color:var(--ink-soft);">Assine com o dedo</span>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="saveChecklist()">Salvar Check List — OS <span id="save-os-label"></span></button>
+    <div style="height:8px;"></div>
+    <button class="btn btn-ghost" onclick="cancelForm()">Cancelar e voltar</button>
+  </section>
+
+  <!-- ============ VIEW SAVED ============ -->
+  <section id="screen-view" class="hidden">
+    <div class="ticket">
+      <div>
+        <div class="k1">Ordem de Serviço</div>
+        <div class="os-num" id="view-os">OS-000000</div>
+      </div>
+      <div class="status-pill" id="view-status">—</div>
+    </div>
+
+    <div class="card">
+      <p class="section-title">Identificação</p>
+      <div id="view-identificacao"></div>
+    </div>
+
+    <div class="card">
+      <p class="section-title">Saída &amp; Chegada</p>
+      <div id="view-saida"></div>
+    </div>
+
+    <div class="card">
+      <p class="section-title">Motivo da Viagem</p>
+      <p id="view-motivo" style="font-size:13.5px; white-space:pre-wrap;"></p>
+    </div>
+
+    <div class="card" id="view-avarias-card">
+      <p class="section-title">Avarias Marcadas</p>
+      <div id="view-avarias"></div>
+    </div>
+
+    <div class="card">
+      <p class="section-title">Itens de Verificação</p>
+      <div id="view-checklist"></div>
+    </div>
+
+    <div class="card">
+      <p class="section-title">Observações</p>
+      <p id="view-observacoes" style="font-size:13.5px; white-space:pre-wrap;"></p>
+    </div>
+
+    <div class="card">
+      <p class="section-title">Assinaturas</p>
+      <label>Condutor</label>
+      <img id="view-sig-condutor" style="width:100%; border:1px solid var(--line); border-radius:8px; margin-bottom:12px; background:#fff;">
+      <label>Responsável</label>
+      <img id="view-sig-responsavel" style="width:100%; border:1px solid var(--line); border-radius:8px; background:#fff;">
+    </div>
+
+    <button class="btn btn-primary" onclick="printChecklist(state.viewingOS)">🖨 Imprimir Check List</button>
+    <div style="height:8px;"></div>
+    <button class="btn btn-secondary" onclick="deleteCurrentView()">Excluir este Check List</button>
+    <div style="height:8px;"></div>
+    <button class="btn btn-ghost" onclick="goHistory()">Voltar ao histórico</button>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<!-- ============ PRINT LAYOUT (populated by JS, only visible when printing) ============ -->
+<div id="print-area"></div>
+
+<script>
+/* ============================================================
+   DATA MODEL
+   - Storage is SHARED so the whole team sees the same fleet log
+   - checklist:<OS>  -> full record (JSON string)
+   - checklist-index -> array of {os, condutor, placa, data, status} (JSON string)
+   - os-counter      -> last used sequential number
+   ============================================================ */
+
+const CHECK_ITEMS = [
+  {id:'documentacao', label:'Documentação do Veículo'},
+  {id:'limpeza', label:'Limpeza (Interna e Externa)'},
+  {id:'calibragem', label:'Calibragem dos Pneus'},
+  {id:'luzes', label:'Luzes / Sinalização (Avarias)'},
+  {id:'nivelAgua', label:'Nível de Água'},
+  {id:'nivelOleo', label:'Nível de Óleo'},
+  {id:'estepe', label:'Estepe'},
+  {id:'chaveRoda', label:'Chave de Roda'},
+  {id:'macaco', label:'Macaco'},
+  {id:'triangulo', label:'Triângulo'},
+];
+
+const DIAGRAM_VIEWS = [
+  {id:'topo', label:'Topo'},
+  {id:'frente', label:'Frente'},
+  {id:'traseira', label:'Traseira'},
+  {id:'lateralEsq', label:'Lateral Esq.'},
+  {id:'lateralDir', label:'Lateral Dir.'},
+];
+
+const SVGS = {
+  topo: `<svg viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="300" height="180" fill="#FCFBF8"/>
+    <path d="M90 20 h120 q25 0 30 25 l10 40 q3 15 0 30 l-10 40 q-5 25 -30 25 h-120 q-25 0 -30 -25 l-10-40 q-3-15 0-30 l10-40 q5-25 30-25 z" fill="none" stroke="#33495C" stroke-width="2.5"/>
+    <rect x="100" y="35" width="100" height="45" rx="8" fill="none" stroke="#33495C" stroke-width="2"/>
+    <line x1="150" y1="35" x2="150" y2="145" stroke="#33495C" stroke-width="1.5"/>
+    <rect x="100" y="100" width="100" height="45" rx="8" fill="none" stroke="#33495C" stroke-width="2"/>
+    <circle cx="150" cy="90" r="2" fill="#33495C"/>
+  </svg>`,
+  frente: `<svg viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="300" height="160" fill="#FCFBF8"/>
+    <path d="M60 130 q0 -60 20 -75 q20 -15 70 -15 q50 0 70 15 q20 15 20 75 z" fill="none" stroke="#33495C" stroke-width="2.5"/>
+    <rect x="95" y="45" width="110" height="30" rx="6" fill="none" stroke="#33495C" stroke-width="2"/>
+    <circle cx="80" cy="130" r="18" fill="none" stroke="#33495C" stroke-width="2"/>
+    <circle cx="220" cy="130" r="18" fill="none" stroke="#33495C" stroke-width="2"/>
+    <rect x="70" y="95" width="30" height="12" rx="3" fill="none" stroke="#33495C" stroke-width="1.5"/>
+    <rect x="200" y="95" width="30" height="12" rx="3" fill="none" stroke="#33495C" stroke-width="1.5"/>
+  </svg>`,
+  traseira: `<svg viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="300" height="160" fill="#FCFBF8"/>
+    <path d="M60 130 q0 -60 20 -75 q20 -15 70 -15 q50 0 70 15 q20 15 20 75 z" fill="none" stroke="#33495C" stroke-width="2.5"/>
+    <rect x="95" y="45" width="110" height="30" rx="6" fill="none" stroke="#33495C" stroke-width="2"/>
+    <circle cx="80" cy="130" r="18" fill="none" stroke="#33495C" stroke-width="2"/>
+    <circle cx="220" cy="130" r="18" fill="none" stroke="#33495C" stroke-width="2"/>
+    <rect x="72" y="100" width="26" height="10" fill="none" stroke="#33495C" stroke-width="1.5"/>
+    <rect x="202" y="100" width="26" height="10" fill="none" stroke="#33495C" stroke-width="1.5"/>
+  </svg>`,
+  lateralEsq: `<svg viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="320" height="150" fill="#FCFBF8"/>
+    <path d="M20 100 q0-10 10-12 l30-6 q10-30 40-38 h100 q35 8 55 40 l35 6 q10 2 10 12 v18 q0 8 -8 8 h-264 q-8 0 -8 -8 z" fill="none" stroke="#33495C" stroke-width="2.5"/>
+    <path d="M105 46 l18 -22 h55 l25 22 z" fill="none" stroke="#33495C" stroke-width="2"/>
+    <line x1="150" y1="46" x2="150" y2="98" stroke="#33495C" stroke-width="1.5"/>
+    <circle cx="90" cy="118" r="20" fill="none" stroke="#33495C" stroke-width="2.5"/>
+    <circle cx="240" cy="118" r="20" fill="none" stroke="#33495C" stroke-width="2.5"/>
+  </svg>`,
+  lateralDir: `<svg viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="320" height="150" fill="#FCFBF8"/>
+    <g transform="translate(320,0) scale(-1,1)">
+    <path d="M20 100 q0-10 10-12 l30-6 q10-30 40-38 h100 q35 8 55 40 l35 6 q10 2 10 12 v18 q0 8 -8 8 h-264 q-8 0 -8 -8 z" fill="none" stroke="#33495C" stroke-width="2.5"/>
+    <path d="M105 46 l18 -22 h55 l25 22 z" fill="none" stroke="#33495C" stroke-width="2"/>
+    <line x1="150" y1="46" x2="150" y2="98" stroke="#33495C" stroke-width="1.5"/>
+    <circle cx="90" cy="118" r="20" fill="none" stroke="#33495C" stroke-width="2.5"/>
+    <circle cx="240" cy="118" r="20" fill="none" stroke="#33495C" stroke-width="2.5"/>
+    </g>
+  </svg>`,
+};
+
+let state = {
+  screen: 'home',
+  currentOS: null,
+  form: null,          // working form object while filling
+  activeDiagram: 'topo',
+  viewingOS: null,
+  historyIndex: [],
+  loaded: false,
+};
+
+function blankForm(os){
+  return {
+    os,
+    createdAt: new Date().toISOString(),
+    condutor:'', setor:'', data:'', placa:'', modelo:'',
+    horaSaida:'', horarioChegada:'', dataChegada:'',
+    kmInicial:'', kmFinal:'',
+    motivo:'',
+    check:{}, // itemId -> 'sim'|'nao'|undefined
+    markers:{}, // viewId -> [{x,y,note}]
+    observacoes:'',
+    sigCondutor:null, sigResponsavel:null,
+    status:'draft'
+  };
+}
+
+/* ---------------- storage helpers ---------------- */
+async function getIndex(){
+  try{
+    const r = await window.storage.get('checklist-index', true);
+    return r ? JSON.parse(r.value) : [];
+  }catch(e){ return []; }
+}
+async function setIndex(idx){
+  try{ await window.storage.set('checklist-index', JSON.stringify(idx), true); }
+  catch(e){ console.error('index save failed', e); }
+}
+async function getNextOS(){
+  let n = 0;
+  try{
+    const r = await window.storage.get('os-counter', true);
+    n = r ? parseInt(r.value, 10) : 0;
+  }catch(e){ n = 0; }
+  n += 1;
+  try{ await window.storage.set('os-counter', String(n), true); }catch(e){}
+  return 'OS-' + String(n).padStart(6, '0');
+}
+async function saveRecord(record){
+  try{
+    await window.storage.set('checklist:' + record.os, JSON.stringify(record), true);
+    return true;
+  }catch(e){ console.error(e); return false; }
+}
+async function loadRecord(os){
+  try{
+    const r = await window.storage.get('checklist:' + os, true);
+    return r ? JSON.parse(r.value) : null;
+  }catch(e){ return null; }
+}
+async function deleteRecord(os){
+  try{ await window.storage.delete('checklist:' + os, true); }catch(e){}
+}
+
+/* ---------------- toast ---------------- */
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ---------------- navigation ---------------- */
+function showScreen(id){
+  ['screen-home','screen-form','screen-view'].forEach(s=>{
+    document.getElementById(s).classList.toggle('hidden', s!==id);
+  });
+}
+function switchHomeTab(which){
+  document.getElementById('tab-home-new').classList.toggle('active', which==='new');
+  document.getElementById('tab-home-hist').classList.toggle('active', which==='hist');
+  document.getElementById('home-new-panel').classList.toggle('hidden', which!=='new');
+  document.getElementById('home-hist-panel').classList.toggle('hidden', which!=='hist');
+  if(which==='hist') renderHistory();
+}
+function goHistory(){
+  showScreen('screen-home');
+  switchHomeTab('hist');
+}
+
+/* ---------------- new checklist ---------------- */
+async function startNewChecklist(){
+  const os = await getNextOS();
+  state.form = blankForm(os);
+  state.activeDiagram = 'topo';
+  document.getElementById('ticket-os').textContent = os;
+  document.getElementById('ticket-status').textContent = 'Em preenchimento';
+  document.getElementById('ticket-status').className = 'status-pill status-draft';
+  document.getElementById('save-os-label').textContent = os;
+
+  // clear fields
+  ['condutor','setor','data','placa','modelo','hora-saida','horario-chegada','data-chegada','km-inicial','km-final','motivo','observacoes']
+    .forEach(id=>{ const el = document.getElementById('f-'+id); if(el) el.value=''; });
+
+  buildChecklistItems();
+  buildDiagramTabs();
+  renderDiagram();
+  renderMarkerList();
+  setTimeout(()=>{ initSignaturePad('sig-condutor'); initSignaturePad('sig-responsavel'); }, 30);
+
+  showScreen('screen-form');
+}
+
+function cancelForm(){
+  showScreen('screen-home');
+  switchHomeTab('new');
+}
+
+/* ---------------- checklist items ui ---------------- */
+function buildChecklistItems(){
+  const wrap = document.getElementById('checklist-items');
+  wrap.innerHTML = '';
+  CHECK_ITEMS.forEach(item=>{
+    const row = document.createElement('div');
+    row.className = 'check-item';
+    row.innerHTML = `
+      <div class="item-label">${item.label}</div>
+      <div class="seg">
+        <button type="button" class="sim" data-id="${item.id}" data-val="sim">SIM</button>
+        <button type="button" class="nao" data-id="${item.id}" data-val="nao">NÃO</button>
+      </div>`;
+    wrap.appendChild(row);
+  });
+  wrap.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.dataset.id, val = btn.dataset.val;
+      state.form.check[id] = val;
+      refreshCheckButtons();
+    });
+  });
+  refreshCheckButtons();
+}
+function refreshCheckButtons(){
+  document.querySelectorAll('#checklist-items .seg button').forEach(btn=>{
+    const val = state.form.check[btn.dataset.id];
+    btn.classList.toggle('on', val === btn.dataset.val);
+  });
+}
+
+/* ---------------- diagrams / markers ---------------- */
+function buildDiagramTabs(){
+  const wrap = document.getElementById('diagram-tabs');
+  wrap.innerHTML = '';
+  DIAGRAM_VIEWS.forEach(v=>{
+    const b = document.createElement('button');
+    b.textContent = v.label;
+    b.dataset.id = v.id;
+    b.className = (v.id === state.activeDiagram) ? 'active' : '';
+    b.onclick = ()=>{ state.activeDiagram = v.id; buildDiagramTabs(); renderDiagram(); };
+    wrap.appendChild(b);
+  });
+}
+function renderDiagram(){
+  const wrap = document.getElementById('diagram-wrap');
+  wrap.innerHTML = SVGS[state.activeDiagram];
+  wrap.onclick = (ev)=>{
+    const rect = wrap.getBoundingClientRect();
+    const x = ((ev.clientX - rect.left) / rect.width) * 100;
+    const y = ((ev.clientY - rect.top) / rect.height) * 100;
+    if(!state.form.markers[state.activeDiagram]) state.form.markers[state.activeDiagram] = [];
+    state.form.markers[state.activeDiagram].push({x, y, note:''});
+    renderDiagram();
+    renderMarkerList();
+  };
+  const pts = state.form.markers[state.activeDiagram] || [];
+  pts.forEach((p, i)=>{
+    const dot = document.createElement('div');
+    dot.className = 'marker';
+    dot.style.left = p.x + '%';
+    dot.style.top = p.y + '%';
+    dot.textContent = i+1;
+    dot.onclick = (ev)=>{
+      ev.stopPropagation();
+      pts.splice(i,1);
+      renderDiagram();
+      renderMarkerList();
+    };
+    wrap.appendChild(dot);
+  });
+}
+function renderMarkerList(){
+  const box = document.getElementById('marker-list');
+  box.innerHTML = '';
+  const viewLabel = DIAGRAM_VIEWS.find(v=>v.id===state.activeDiagram).label;
+  const pts = state.form.markers[state.activeDiagram] || [];
+  if(pts.length === 0){
+    box.innerHTML = `<div style="font-size:12px; color:var(--ink-soft);">Nenhuma avaria marcada em "${viewLabel}".</div>`;
+    return;
+  }
+  pts.forEach((p, i)=>{
+    const row = document.createElement('div');
+    row.className = 'mrow';
+    row.innerHTML = `
+      <div class="tag">${i+1}</div>
+      <input type="text" placeholder="Descreva a avaria (arranhão, amassado...)" value="${p.note.replace(/"/g,'&quot;')}" style="flex:1;">
+      <button class="del" title="Remover">✕</button>`;
+    row.querySelector('input').addEventListener('input', (e)=>{ p.note = e.target.value; });
+    row.querySelector('.del').addEventListener('click', ()=>{
+      pts.splice(i,1); renderDiagram(); renderMarkerList();
+    });
+    box.appendChild(row);
+  });
+}
+
+/* ---------------- signature pad ---------------- */
+const sigPads = {};
+function initSignaturePad(canvasId){
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  const ratio = window.devicePixelRatio || 1;
+  const cssWidth = canvas.clientWidth || canvas.parentElement.clientWidth;
+  canvas.width = cssWidth * ratio;
+  canvas.height = 140 * ratio;
+  canvas.style.width = cssWidth + 'px';
+  canvas.style.height = '140px';
+  ctx.scale(ratio, ratio);
+  ctx.strokeStyle = '#20242A';
+  ctx.lineWidth = 2.2;
+  ctx.lineCap = 'round';
+  let drawing = false, last = null;
+
+  function pos(ev){
+    const rect = canvas.getBoundingClientRect();
+    const t = ev.touches ? ev.touches[0] : ev;
+    return { x: t.clientX - rect.left, y: t.clientY - rect.top };
+  }
+  function start(ev){ ev.preventDefault(); drawing = true; last = pos(ev); }
+  function move(ev){
+    if(!drawing) return;
+    ev.preventDefault();
+    const p = pos(ev);
+    ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(p.x, p.y); ctx.stroke();
+    last = p;
+  }
+  function end(){ drawing = false; }
+
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', end);
+  canvas.addEventListener('touchstart', start, {passive:false});
+  canvas.addEventListener('touchmove', move, {passive:false});
+  canvas.addEventListener('touchend', end);
+
+  sigPads[canvasId] = canvas;
+}
+function clearSig(who){
+  const id = who === 'condutor' ? 'sig-condutor' : 'sig-responsavel';
+  const canvas = document.getElementById(id);
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width, canvas.height);
+}
+function isCanvasBlank(canvas){
+  const ctx = canvas.getContext('2d');
+  const data = ctx.getImageData(0,0,canvas.width, canvas.height).data;
+  for(let i=3;i<data.length;i+=4){ if(data[i] !== 0) return false; }
+  return true;
+}
+
+/* ---------------- save / status ---------------- */
+function computeStatus(form){
+  const anyNao = Object.values(form.check).some(v => v === 'nao');
+  const anyMarker = Object.values(form.markers).some(arr => arr && arr.length > 0);
+  if(anyNao || anyMarker || (form.observacoes && form.observacoes.trim())) return 'issue';
+  const answered = CHECK_ITEMS.every(it => form.check[it.id]);
+  return answered ? 'ok' : 'draft';
+}
+function statusLabel(s){
+  return s === 'ok' ? 'OK — Sem Avarias' : s === 'issue' ? 'Com Avarias' : 'Em preenchimento';
+}
+function statusClass(s){
+  return s === 'ok' ? 'status-ok' : s === 'issue' ? 'status-issue' : 'status-draft';
+}
+
+async function saveChecklist(){
+  const f = state.form;
+  f.condutor = document.getElementById('f-condutor').value.trim();
+  f.setor = document.getElementById('f-setor').value.trim();
+  f.data = document.getElementById('f-data').value;
+  f.placa = document.getElementById('f-placa').value.trim().toUpperCase();
+  f.modelo = document.getElementById('f-modelo').value.trim();
+  f.horaSaida = document.getElementById('f-hora-saida').value;
+  f.horarioChegada = document.getElementById('f-horario-chegada').value;
+  f.dataChegada = document.getElementById('f-data-chegada').value;
+  f.kmInicial = document.getElementById('f-km-inicial').value;
+  f.kmFinal = document.getElementById('f-km-final').value;
+  f.motivo = document.getElementById('f-motivo').value.trim();
+  f.observacoes = document.getElementById('f-observacoes').value.trim();
+
+  const cCanvas = document.getElementById('sig-condutor');
+  const rCanvas = document.getElementById('sig-responsavel');
+  f.sigCondutor = isCanvasBlank(cCanvas) ? null : cCanvas.toDataURL('image/png');
+  f.sigResponsavel = isCanvasBlank(rCanvas) ? null : rCanvas.toDataURL('image/png');
+
+  if(!f.condutor || !f.placa){
+    showToast('Preencha ao menos Condutor e Placa.');
+    return;
+  }
+
+  f.status = computeStatus(f);
+  f.updatedAt = new Date().toISOString();
+
+  const ok = await saveRecord(f);
+  if(!ok){ showToast('Erro ao salvar. Tente novamente.'); return; }
+
+  let idx = await getIndex();
+  idx = idx.filter(e => e.os !== f.os);
+  idx.unshift({
+    os: f.os, condutor: f.condutor, placa: f.placa, modelo: f.modelo,
+    data: f.data, status: f.status, createdAt: f.createdAt
+  });
+  await setIndex(idx);
+
+  showToast('Check List ' + f.os + ' salvo com sucesso.');
+  goHistory();
+}
+
+/* ---------------- history ---------------- */
+async function renderHistory(){
+  const list = document.getElementById('history-list');
+  list.innerHTML = '<div class="loading">Carregando…</div>';
+  const idx = await getIndex();
+  state.historyIndex = idx;
+  const q = (document.getElementById('search-input').value || '').toLowerCase().trim();
+  const filtered = idx.filter(e=>{
+    if(!q) return true;
+    return (e.os||'').toLowerCase().includes(q)
+      || (e.condutor||'').toLowerCase().includes(q)
+      || (e.placa||'').toLowerCase().includes(q)
+      || (e.modelo||'').toLowerCase().includes(q);
+  });
+
+  if(filtered.length === 0){
+    list.innerHTML = `<div class="empty-state"><div class="big">🚗</div>Nenhum check list encontrado.</div>`;
+    return;
+  }
+
+  list.innerHTML = '';
+  filtered.forEach(e=>{
+    const row = document.createElement('div');
+    row.className = 'hist-item';
+    row.innerHTML = `
+      <div class="left">
+        <div class="os mono">${e.os}</div>
+        <div class="meta">${e.condutor || '—'} · ${e.placa || '—'} ${e.modelo ? '· '+e.modelo : ''}</div>
+        <div class="meta">${e.data ? formatDate(e.data) : ''}</div>
+      </div>
+      <div class="right">
+        <span class="status-pill ${statusClass(e.status)}">${statusLabel(e.status)}</span>
+        <button class="print-btn" type="button">Imprimir</button>
+      </div>`;
+    row.querySelector('.left').onclick = ()=> openView(e.os);
+    row.querySelector('.status-pill').onclick = ()=> openView(e.os);
+    row.querySelector('.print-btn').addEventListener('click', (ev)=>{
+      ev.stopPropagation();
+      printChecklist(e.os);
+    });
+    list.appendChild(row);
+  });
+}
+function formatDate(d){
+  const parts = d.split('-');
+  if(parts.length===3) return parts[2]+'/'+parts[1]+'/'+parts[0];
+  return d;
+}
+
+/* ---------------- view saved record ---------------- */
+async function openView(os){
+  const rec = await loadRecord(os);
+  if(!rec){ showToast('Registro não encontrado.'); return; }
+  state.viewingOS = os;
+
+  document.getElementById('view-os').textContent = rec.os;
+  const stPill = document.getElementById('view-status');
+  stPill.textContent = statusLabel(rec.status);
+  stPill.className = 'status-pill ' + statusClass(rec.status);
+
+  document.getElementById('view-identificacao').innerHTML = [
+    ['Condutor', rec.condutor], ['Setor', rec.setor], ['Data', rec.data ? formatDate(rec.data): ''],
+    ['Placa', rec.placa], ['Modelo', rec.modelo]
+  ].map(fieldRow).join('');
+
+  document.getElementById('view-saida').innerHTML = [
+    ['Hora Saída', rec.horaSaida], ['Horário Chegada', rec.horarioChegada],
+    ['Data Chegada', rec.dataChegada ? formatDate(rec.dataChegada): ''],
+    ['KM Inicial', rec.kmInicial], ['KM Final', rec.kmFinal]
+  ].map(fieldRow).join('');
+
+  document.getElementById('view-motivo').textContent = rec.motivo || '—';
+  document.getElementById('view-observacoes').textContent = rec.observacoes || '—';
+
+  const avariasBox = document.getElementById('view-avarias');
+  let anyMarker = false;
+  let html = '';
+  DIAGRAM_VIEWS.forEach(v=>{
+    const pts = rec.markers && rec.markers[v.id] || [];
+    if(pts.length){
+      anyMarker = true;
+      html += `<div style="margin-bottom:10px;"><strong style="font-size:12.5px;">${v.label}</strong>`;
+      pts.forEach((p,i)=>{
+        html += `<div class="view-field"><span class="k">Ponto ${i+1}</span><span class="v">${p.note || 'sem descrição'}</span></div>`;
+      });
+      html += `</div>`;
+    }
+  });
+  avariasBox.innerHTML = anyMarker ? html : '<p style="font-size:13px; color:var(--ink-soft);">Nenhuma avaria marcada.</p>';
+
+  document.getElementById('view-checklist').innerHTML = CHECK_ITEMS.map(it=>{
+    const v = rec.check[it.id];
+    const label = v === 'sim' ? 'SIM' : v === 'nao' ? 'NÃO' : '—';
+    const color = v === 'sim' ? 'var(--green)' : v === 'nao' ? 'var(--orange)' : 'var(--ink-soft)';
+    return `<div class="view-field"><span class="k">${it.label}</span><span class="v" style="color:${color}; font-weight:700;">${label}</span></div>`;
+  }).join('');
+
+  const sc = document.getElementById('view-sig-condutor');
+  const sr = document.getElementById('view-sig-responsavel');
+  sc.src = rec.sigCondutor || makeBlankSigPlaceholder();
+  sr.src = rec.sigResponsavel || makeBlankSigPlaceholder();
+
+  showScreen('screen-view');
+}
+function fieldRow([k,v]){
+  return `<div class="view-field"><span class="k">${k}</span><span class="v">${v || '—'}</span></div>`;
+}
+function makeBlankSigPlaceholder(){
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="100"><rect width="100%" height="100%" fill="#fff"/><text x="20" y="55" font-family="sans-serif" font-size="14" fill="#999">Sem assinatura</text></svg>`
+  );
+}
+async function deleteCurrentView(){
+  if(!state.viewingOS) return;
+  if(!confirm('Excluir o Check List ' + state.viewingOS + '? Esta ação não pode ser desfeita.')) return;
+  await deleteRecord(state.viewingOS);
+  let idx = await getIndex();
+  idx = idx.filter(e=>e.os !== state.viewingOS);
+  await setIndex(idx);
+  showToast('Check List excluído.');
+  goHistory();
+}
+
+/* ---------------- print (replica o formulário em papel) ---------------- */
+function ppCheckboxes(val, sim){
+  // val: 'sim' | 'nao' | undefined ; sim: true if this is the SIM box
+  const marked = (sim && val === 'sim') || (!sim && val === 'nao');
+  return `<span class="pp-box">${marked ? 'X' : ''}</span>`;
+}
+function ppDiagramSVG(viewId, markers){
+  // wrap the existing schematic SVG with a positioned label + numbered markers
+  const pts = (markers && markers[viewId]) || [];
+  const dots = pts.map((p,i)=>`<div class="pp-marker" style="left:${p.x}%; top:${p.y}%;">${i+1}</div>`).join('');
+  const label = DIAGRAM_VIEWS.find(v=>v.id===viewId).label;
+  return `<div class="pp-diagram-box">
+      <div class="pp-diagram-label">${label}</div>
+      ${SVGS[viewId]}
+      ${dots}
+    </div>`;
+}
+function ppMotivoLines(text){
+  const lines = (text || '').split('\n');
+  const total = Math.max(4, lines.length);
+  let html = '';
+  for(let i=0;i<total;i++){
+    html += `<div class="ln">${lines[i] || ''}</div>`;
+  }
+  return html;
+}
+async function printChecklist(os){
+  if(!os){ showToast('Selecione um Check List para imprimir.'); return; }
+  const rec = await loadRecord(os);
+  if(!rec){ showToast('Registro não encontrado.'); return; }
+
+  const allMarkersEmpty = DIAGRAM_VIEWS.every(v => !(rec.markers && rec.markers[v.id] && rec.markers[v.id].length));
+
+  const html = `
+    <div class="pp-page">
+      <div class="pp-os">Nº OS: ${rec.os}</div>
+      <div class="pp-title">CHECK LIST</div>
+
+      <div class="pp-row">
+        <div class="pp-field grow"><span class="lab">NOME DO CONDUTOR:</span><span class="val">${rec.condutor || ''}</span></div>
+        <div class="pp-field"><span class="lab">SETOR:</span><span class="val">${rec.setor || ''}</span></div>
+      </div>
+      <div class="pp-row">
+        <div class="pp-field"><span class="lab">DATA:</span><span class="val">${rec.data ? formatDate(rec.data) : ''}</span></div>
+        <div class="pp-field grow"><span class="lab">PLACA:</span><span class="val">${rec.placa || ''}</span></div>
+        <div class="pp-field grow"><span class="lab">MODELO:</span><span class="val">${rec.modelo || ''}</span></div>
+      </div>
+      <div class="pp-row">
+        <div class="pp-field"><span class="lab">HORA SAÍDA:</span><span class="val">${rec.horaSaida || ''}</span></div>
+        <div class="pp-field"><span class="lab">HORÁRIO CHEGADA:</span><span class="val">${rec.horarioChegada || ''}</span></div>
+        <div class="pp-field"><span class="lab">DATA:</span><span class="val">${rec.dataChegada ? formatDate(rec.dataChegada) : ''}</span></div>
+      </div>
+      <div class="pp-row">
+        <div class="pp-field"><span class="lab">KM INICIAL:</span><span class="val">${rec.kmInicial || ''}</span></div>
+        <div class="pp-field"><span class="lab">KM FINAL:</span><span class="val">${rec.kmFinal || ''}</span></div>
+      </div>
+
+      <div class="pp-diagrams">
+        <div class="left-col">
+          ${ppDiagramSVG('topo', rec.markers)}
+          ${ppDiagramSVG('frente', rec.markers)}
+        </div>
+        <div class="pp-right-col">
+          ${ppDiagramSVG('lateralEsq', rec.markers)}
+          ${ppDiagramSVG('lateralDir', rec.markers)}
+        </div>
+      </div>
+      ${allMarkersEmpty ? '' : `<div style="font-size:10px; color:#555; margin:-4px 0 8px;">Números indicam avarias marcadas — ver descrição nas Observações.</div>`}
+
+      <div class="pp-motivo-label">MOTIVO DA VIAGEM:</div>
+      <div class="pp-lines">${ppMotivoLines(rec.motivo)}</div>
+
+      <div class="pp-checklist">
+        ${CHECK_ITEMS.map(it=>{
+          const v = rec.check[it.id];
+          return `<div class="pp-check-row">
+            <span class="arrow">➤</span>
+            <span class="lbl">${it.label.toUpperCase()}</span>
+            <span class="opt">SIM ${ppCheckboxes(v, true)}</span>
+            <span class="opt">NÃO ${ppCheckboxes(v, false)}</span>
+          </div>`;
+        }).join('')}
+      </div>
+
+      <div class="pp-obs-label">OBSERVAÇÕES DAS AVARIAS:</div>
+      <div class="pp-lines">${ppMotivoLines(rec.observacoes)}</div>
+
+      <div class="pp-sig">
+        <div class="pp-sig-row">
+          <span class="lab">ASS. CONDUTOR:</span>
+          <span class="line">${rec.sigCondutor ? `<img src="${rec.sigCondutor}">` : ''}</span>
+        </div>
+        <div class="pp-sig-row">
+          <span class="lab">ASS. RESPONSÁVEL:</span>
+          <span class="line">${rec.sigResponsavel ? `<img src="${rec.sigResponsavel}">` : ''}</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('print-area').innerHTML = html;
+  setTimeout(()=>{ window.print(); }, 60);
+}
+
+/* ---------------- init ---------------- */
+window.addEventListener('DOMContentLoaded', ()=>{
+  showScreen('screen-home');
+  switchHomeTab('new');
+});
+</script>
+</body>
+</html>
